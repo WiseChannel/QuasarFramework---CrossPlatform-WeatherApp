@@ -3,18 +3,19 @@
     <div class="col q-pt-lg q-px-md-">
       <q-input
           v-model="search"
+          @keyup.enter="getWeatherBySearch"
           label="Search"
           dark
           placeholder="Search"
       >
         <template v-slot:before>
           <q-icon
-                  @click="getLocation"
-                  name="my_location" />
+            @click="getLocation"
+            name="my_location" />
         </template>
 
         <template v-slot:append>
-          <q-btn round dense flat icon="add" />
+          <q-btn @click="getWeatherBySearch" round dense flat icon="search" />
         </template>
       </q-input>
     </div>
@@ -22,15 +23,19 @@
     <template v-if='weatherData'>
       <div class="col text-white text-center">
         <div class="text-h4 text-weight-light">
-          Kyiv
+          {{ weatherData.name }}
         </div>
         <div class="text-h6 text-weight-light">
-          Rain
+          {{ weatherData.weather[0].main }}
         </div>
         <div class="text-h1 text-weight-thin q-my-lg relative-position">
-          <span>8</span>
-          <span class="text-h4 relative-position degree">&deg;</span>
+          <span> {{ Math.round(weatherData.main.temp)  }} </span>
+          <span class="text-h4 relative-position degree">&deg;C</span>
         </div>
+      </div>
+
+      <div class="col text-center">
+        <img :src="`http://openweathermap.org/img/wn/${weatherData.weather[0].icon}@2x.png`" alt="" />
       </div>
     </template>
 
@@ -82,6 +87,13 @@ export default {
           console.log('Response: ' , res)
           this.weatherData = res.data
         })
+    },
+    getWeatherBySearch() {
+      this.$axios(`${this.apiUrl}?q=${this.search}&appid=${this.apiKey}&units=metric`)
+        .then(res => {
+          console.log('Response: ' , res)
+          this.weatherData = res.data
+      })
     }
   }
 }
