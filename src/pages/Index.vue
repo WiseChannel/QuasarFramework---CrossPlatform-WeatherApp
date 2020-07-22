@@ -1,5 +1,5 @@
 <template>
-  <q-page class="flex column">
+  <q-page class="flex column" :class="bgClass">
     <div class="col q-pt-lg q-px-md-">
       <q-input
           v-model="search"
@@ -70,8 +70,21 @@ export default {
       apiKey: '0ecd80333f3fc44ff0ee6bf7087b756c',
     }
   },
+  computed: {
+    bgClass() {
+      if (this.weatherData) {
+        if (this.weatherData.weather[0].icon.endsWith('n')) {
+          return 'bg-night'
+        }
+        else {
+          return 'bg-day'
+        }
+      }
+    }
+  },
   methods: {
     getLocation() {
+      this.$q.loading.show()
       navigator.geolocation.getCurrentPosition(
         position => {
           console.log('position', position)
@@ -82,17 +95,21 @@ export default {
       )
     },
     getWeatherByCords() {
+      this.$q.loading.show()
       this.$axios(`${this.apiUrl}?lat=${this.lat}&lon=${this.lon}&appid=${this.apiKey}&units=metric`)
         .then(res => {
           console.log('Response: ' , res)
           this.weatherData = res.data
+          this.$q.loading.hide()
         })
     },
     getWeatherBySearch() {
+      this.$q.loading.show()
       this.$axios(`${this.apiUrl}?q=${this.search}&appid=${this.apiKey}&units=metric`)
         .then(res => {
           console.log('Response: ' , res)
           this.weatherData = res.data
+          this.$q.loading.hide()
       })
     }
   }
@@ -103,6 +120,12 @@ export default {
 
   .q-page {
     background: linear-gradient(to bottom, #136a8a, #267871);
+    &.bg-night {
+      background: linear-gradient(to bottom, #232526, #414345);
+    }
+    &.bg-day {
+      background: linear-gradient(to bottom, #00b4db, #0083b0);
+    }
   }
 
   .degree {
