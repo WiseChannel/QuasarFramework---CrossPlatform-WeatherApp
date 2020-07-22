@@ -85,14 +85,25 @@ export default {
   methods: {
     getLocation() {
       this.$q.loading.show()
-      navigator.geolocation.getCurrentPosition(
-        position => {
-          console.log('position', position)
-          this.lat = position.coords.latitude
-          this.lon = position.coords.longitude
-          this.getWeatherByCords()
-        }
-      )
+
+      if (this.$q.platform.is.elcetron) {
+        this.$axios.get('https://freegeoip.app/json/')
+          .then(res => {
+            console.log(res)
+            this.lat = res.data.latitude
+            this.lon = res.data.longitude
+            this.getWeatherByCords()
+          })
+      } else {
+        navigator.geolocation.getCurrentPosition(
+                position => {
+                  console.log('position', position)
+                  this.lat = position.coords.latitude
+                  this.lon = position.coords.longitude
+                  this.getWeatherByCords()
+                }
+        )
+      }
     },
     getWeatherByCords() {
       this.$q.loading.show()
